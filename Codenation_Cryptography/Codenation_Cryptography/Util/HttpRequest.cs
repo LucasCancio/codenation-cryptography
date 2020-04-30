@@ -17,9 +17,7 @@ namespace Codenation_Cryptography
 
         public static async Task<string> GetData(string endpoint)
         {
-            //httpClient.DefaultRequestHeaders.Add(); //Se tiver header
-
-            System.Net.Http.HttpResponseMessage response = await httpClient.GetAsync(endpoint);//Endpoint
+            var response = await httpClient.GetAsync(endpoint);
 
             response.EnsureSuccessStatusCode();//Lança uma excessão, se der errado
 

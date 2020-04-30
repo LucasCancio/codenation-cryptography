@@ -54,6 +54,37 @@ namespace Codenation_Cryptography
             return textoDecifrado;
         }
 
+        public string Cifrar(string texto)
+        {
+            string textoCifrado = "";
+
+            char[] caracteres = texto.ToLower().ToCharArray();
+
+            foreach (char caracter in caracteres)
+            {
+                if (Alfabeto.Contains(caracter))
+                {
+                    int caracterIndex = Alfabeto.IndexOf(caracter);
+                    int caracterCifradoIndex = caracterIndex + numeroDeCasas;
+
+                    if (caracterCifradoIndex >= Alfabeto.Count)
+                    {
+                        caracterCifradoIndex = caracterCifradoIndex - Alfabeto.Count;
+                    }
+
+                    char caracterDecifrado = Alfabeto[caracterCifradoIndex];
+
+                    textoCifrado += caracterDecifrado;
+                }
+                else
+                {
+                    textoCifrado += caracter;
+                }
+            }
+
+            return textoCifrado;
+        }
+
         public static string GerarHashSHA1(string texto)
         {
             try
