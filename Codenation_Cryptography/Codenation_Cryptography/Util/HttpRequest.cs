@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -25,39 +26,27 @@ namespace Codenation_Cryptography
             return await response.Content.ReadAsStringAsync();
         }
 
-
-        public static async Task<string> PostData(string data, string endpoint)
+        public static async Task<string> Upload(string endpoint, string filePath, ByteArrayContent byteArrayContent)
         {
-            //httpClient.DefaultRequestHeaders.Add(); //Se tiver header
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                throw new ArgumentNullException(nameof(filePath));
+            }
 
-            var stringContent = new StringContent(data, UnicodeEncoding.UTF8, "application/json");
+            using var form = new MultipartFormDataContent();
+            using var fileContent = byteArrayContent;
 
-            System.Net.Http.HttpResponseMessage response =
-                    await httpClient.PostAsync(endpoint, stringContent);
+            fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
 
-            response.EnsureSuccessStatusCode();//Lança uma excessão, se der errado
+            var filename = Path.GetFileName(filePath);
+
+            form.Add(fileContent, filename, filename);
+
+            var response = await httpClient.PostAsync(endpoint, form);
+
+            response.EnsureSuccessStatusCode();
 
             return await response.Content.ReadAsStringAsync();
-        }
-
-        public static async Task<Stream> Upload(string endpoint, string paramString, Stream paramFileStream, byte[] paramFileBytes)
-        {
-            HttpContent stringContent = new StringContent(paramString);
-            HttpContent fileStreamContent = new StreamContent(paramFileStream);
-            HttpContent bytesContent = new ByteArrayContent(paramFileBytes);
-
-            using (var formData = new MultipartFormDataContent())
-            {
-                formData.Add(stringContent, "param1", "param1");
-                formData.Add(fileStreamContent, "file1", "file1");
-                formData.Add(bytesContent, "file2", "file2");
-
-                var response = await httpClient.PostAsync(endpoint, formData);
-
-                response.EnsureSuccessStatusCode();
-
-                return await response.Content.ReadAsStreamAsync();
-            }
         }
 
     }

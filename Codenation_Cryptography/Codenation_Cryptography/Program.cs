@@ -2,7 +2,7 @@
 using Codenation_Cryptography.Util;
 using Newtonsoft.Json;
 using System;
-using System.IO;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,12 +10,15 @@ namespace Codenation_Cryptography
 {
     public class Program
     {
-        private static readonly string token = "e9ced2b2925b45238eb65d17f9ff94c191abe3fa";
+        private static string token;
 
         public static async Task Main(string[] args)
         {
             try
             {
+                Console.WriteLine("Digite seu token: ");
+                token = Console.ReadLine();
+                
                 var desafio = await GetDesafio();
 
                 Console.WriteLine($"\n>>> Desafio: {desafio.toJson()}");
@@ -30,7 +33,7 @@ namespace Codenation_Cryptography
 
                 Console.WriteLine($"\nTexto decifrado: {textoDecifrado}");
 
-                string resumoCriptografico = Cryptography.GerarHashSHA1(textoDecifrado);
+                string resumoCriptografico = Cryptography.GerarHashSHA1(textoDecifrado).ToLower();
 
                 Console.WriteLine($"\nResumo criptográfico: {resumoCriptografico}");
 
@@ -64,17 +67,17 @@ namespace Codenation_Cryptography
 
         public static async Task PostDesafio(Desafio desafio)
         {
-            var endpoint = $"/challenge/dev-ps/submit-solution?token={token}";
+            var endpoint = $"challenge/dev-ps/submit-solution?token={token}";
 
-            byte[] byteArray = Encoding.ASCII.GetBytes(desafio.toJson());
+            var byteArray = Encoding.ASCII.GetBytes(desafio.toJson());
 
-            MemoryStream stream = new MemoryStream(byteArray);
+            var byteArrayContent= new ByteArrayContent(byteArray);
 
             Console.WriteLine($"\nByteArray: {byteArray}");
 
-            Console.WriteLine($"\nStream: {stream}");
+            var result= await HttpRequest.Upload(endpoint, "answer", byteArrayContent);
 
-            await HttpRequest.Upload(endpoint, "answer", stream, byteArray);
+            Console.WriteLine($"\nResultado: {result}");
 
         }
     }
